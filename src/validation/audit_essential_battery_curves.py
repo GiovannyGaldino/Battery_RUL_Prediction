@@ -33,7 +33,7 @@ Design decisions:
 - The default input is data/interim/charge and data/interim/discharge.
 
 Default project root:
-C:\\Artigo Baterias de Litio\\Batteries
+<project-root>
 """
 
 from __future__ import annotations
@@ -61,8 +61,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
-DEFAULT_PROJECT_ROOT = r"C:\Artigo Baterias de Litio\Batteries"
-DEFAULT_DATA_ROOT = r"C:\Artigo Baterias de Litio\Batteries\data"
+DEFAULT_PROJECT_ROOT = "."
+DEFAULT_DATA_ROOT = "data"
 
 PHASES = ("charge", "discharge")
 
@@ -151,13 +151,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--project-root",
         default=DEFAULT_PROJECT_ROOT,
-        help="Project root. Default: C:\\Artigo Baterias de Litio\\Batteries",
+        help="Project root. Default: <project-root>",
     )
 
     parser.add_argument(
         "--data-root",
         default=DEFAULT_DATA_ROOT,
-        help="Data root. Default: C:\\Artigo Baterias de Litio\\Batteries\\data",
+        help="Data root. Default: <project-root>\\data",
     )
 
     parser.add_argument(

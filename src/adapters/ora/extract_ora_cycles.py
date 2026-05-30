@@ -4,7 +4,7 @@ Extract Oxford/ORA battery characterization cycles into separate charge and
  discharge branches.
 
 Expected raw input example:
-    D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries\data\raw\ORA\Oxford_Battery_Degradation_Dataset_1.mat
+    .\data\raw\ORA\Oxford_Battery_Degradation_Dataset_1.mat
 
 Main outputs:
     data/interim/ora/extracted/ora_charge_extracted_cycles.parquet

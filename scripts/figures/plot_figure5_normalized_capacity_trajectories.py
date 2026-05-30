@@ -34,10 +34,10 @@ Default phase:
 
 Recommended PowerShell command:
 
-& C:\Users\Giovanny\anaconda3\envs\batteries\python.exe `
-  "C:\Artigo Baterias de Litio\Batteries\scripts\article\plot_figure5_normalized_capacity_trajectories.py" `
-  --data-root "C:\Artigo Baterias de Litio\Batteries\data" `
-  --output-root "C:\Artigo Baterias de Litio\Batteries\reports\article_figures\figure5_normalized_capacity_trajectories" `
+& python `
+  ".\scripts\article\plot_figure5_normalized_capacity_trajectories.py" `
+  --data-root ".\data" `
+  --output-root ".\reports\article_figures\figure5_normalized_capacity_trajectories" `
   --engine fastparquet `
   --formats png pdf `
   --dpi 600 `
@@ -71,9 +71,9 @@ import numpy as np
 import pandas as pd
 
 
-DEFAULT_DATA_ROOT = Path(r"C:\Artigo Baterias de Litio\Batteries\data")
+DEFAULT_DATA_ROOT = Path("data")
 DEFAULT_OUTPUT_ROOT = Path(
-    r"C:\Artigo Baterias de Litio\Batteries\reports\article_figures\figure5_normalized_capacity_trajectories"
+    r".\reports\article_figures\figure5_normalized_capacity_trajectories"
 )
 
 

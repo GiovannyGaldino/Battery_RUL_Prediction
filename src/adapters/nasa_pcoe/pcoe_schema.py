@@ -13,9 +13,7 @@ DATASET_NAME = "PCOE"
 ADAPTER_VERSION = "pcoe_adapter_v1.2"
 CLEANING_VERSION = "pcoe_cleaning_v1.2"
 
-DEFAULT_BASE_DIR = Path(
-    r"D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries"
-)
+DEFAULT_BASE_DIR = Path.cwd()
 
 STANDARD_CYCLE_COLUMNS = [
     # Identification

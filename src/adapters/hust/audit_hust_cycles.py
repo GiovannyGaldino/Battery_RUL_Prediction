@@ -20,13 +20,13 @@ cycles from the same battery in the same figure. This replaces the previous beha
 that produced one image per cycle.
 
 Example using the active Conda environment directly:
-    C:/Users/Giovanny/anaconda3/envs/batteries/python.exe \
+    python \
         src/adapters/hust/audit_hust_cycles.py
 
 Example with a custom project root:
-    C:/Users/Giovanny/anaconda3/envs/batteries/python.exe \
+    python \
         src/adapters/hust/audit_hust_cycles.py \
-        --base-dir "D:/USUÁRIOS/Marcellus/OneDrive/Doutorado/BATERIAS - Ressubmissão/Batteries"
+        --base-dir "."
 """
 
 from __future__ import annotations

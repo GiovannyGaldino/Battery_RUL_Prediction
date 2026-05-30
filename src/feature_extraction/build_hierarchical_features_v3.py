@@ -53,13 +53,10 @@ Main design
    - phase: features for the full vector in the original row
    - stage: optional subsegments inside the phase, split by large time gaps
 
-Typical PowerShell usage
-------------------------
+Typical usage
+-------------
 
-& C:\\Users\\Giovanny\\anaconda3\\envs\\batteries\\python.exe ".\\src\\feature_extraction\\build_hierarchical_features_v3.py" --input-root "C:\\Artigo Baterias de Litio\\Batteries\\data\\interim" --output-root "C:\\Artigo Baterias de Litio\\Batteries\\data\\processed\\features_hierarchical_v3" --reports-root "C:\\Artigo Baterias de Litio\\Batteries\\reports\\feature_extraction_v3" --workers 2 --resume
-
-If RAM is high:
-& C:\\Users\\Giovanny\\anaconda3\\envs\\batteries\\python.exe ".\\src\\feature_extraction\\build_hierarchical_features_v3.py" --input-root "C:\\Artigo Baterias de Litio\\Batteries\\data\\interim" --output-root "C:\\Artigo Baterias de Litio\\Batteries\\data\\processed\\features_hierarchical_v3" --reports-root "C:\\Artigo Baterias de Litio\\Batteries\\reports\\feature_extraction_v3" --workers 1 --resume
+python src/feature_extraction/build_hierarchical_features_v3.py --input-root data/interim --output-root data/processed/features_hierarchical_v3 --reports-root reports/feature_extraction_v3 --workers 2 --resume
 
 Important
 ---------
@@ -99,9 +96,9 @@ except Exception as exc:
 # Defaults
 # =============================================================================
 
-DEFAULT_INPUT_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/data/interim")
-DEFAULT_OUTPUT_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/data/processed/features_hierarchical_v3")
-DEFAULT_REPORTS_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/reports/feature_extraction_v3")
+DEFAULT_INPUT_ROOT = Path("data/interim")
+DEFAULT_OUTPUT_ROOT = Path("data/processed/features_hierarchical_v3")
+DEFAULT_REPORTS_ROOT = Path("reports/feature_extraction_v3")
 
 PHASE_FOLDERS = ("charge", "discharge")
 

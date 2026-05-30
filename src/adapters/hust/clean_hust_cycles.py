@@ -16,7 +16,7 @@ Output files:
 
 Example:
     python src/adapters/hust/clean_hust_cycles.py \
-        --base-dir "D:/USUÁRIOS/Marcellus/OneDrive/Doutorado/BATERIAS - Ressubmissão/Batteries" \
+        --base-dir "." \
         --temperature-c 30
 """
 

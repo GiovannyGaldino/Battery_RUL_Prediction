@@ -1,42 +1,15 @@
 """
 monitor_feature_extraction_v3.py
 
-Monitor script for build_hierarchical_features_v3.py.
+Read-only monitor for long hierarchical feature extraction v3 runs.
 
-Purpose
--------
-Run this script in a second PowerShell terminal while the feature extraction is
-running. It does not modify the extraction outputs.
+Typical use from the repository root:
 
-It reports:
-- overall progress in files and input rows
-- completed, running, pending and failed files
-- dataset/base, phase folder, input file and output file
-- current battery and cycle when this can be inferred from temporary output files
-  or progress_logs
-- list of completed files
-- CSV snapshots for later inspection
-
-It works even if the extractor was not patched for verbose progress. In that case,
-current battery/cycle is inferred from the temporary Parquet file when readable.
-If no temp file is readable, the script still reports completed/pending/running
-by file.
-
-Typical PowerShell use
-----------------------
-
-$args_monitor = @(
-  ".\\src\\feature_extraction\\monitor_feature_extraction_v3.py",
-  "--input-root", "C:\\Artigo Baterias de Litio\\Batteries\\data\\interim",
-  "--output-root", "C:\\Artigo Baterias de Litio\\Batteries\\data\\processed\\features_hierarchical_v3",
-  "--reports-root", "C:\\Artigo Baterias de Litio\\Batteries\\reports\\feature_extraction_v3",
-  "--refresh-seconds", "30",
-  "--watch"
-)
-
-& C:\\Users\\Giovanny\\anaconda3\\envs\\batteries\\python.exe @args_monitor
-
-For one snapshot only, remove --watch.
+    python src/feature_extraction/monitor_feature_extraction_v3.py \
+        --input-root data/interim \
+        --output-root data/processed/features_hierarchical_v3 \
+        --reports-root reports/feature_extraction_v3 \
+        --monitor-root reports/feature_extraction_v3_monitor
 """
 
 from __future__ import annotations
@@ -59,10 +32,10 @@ except Exception:
     fastparquet = None
 
 
-DEFAULT_INPUT_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/data/interim")
-DEFAULT_OUTPUT_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/data/processed/features_hierarchical_v3")
-DEFAULT_REPORTS_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/reports/feature_extraction_v3")
-DEFAULT_MONITOR_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/reports/feature_extraction_v3_monitor")
+DEFAULT_INPUT_ROOT = Path("data/interim")
+DEFAULT_OUTPUT_ROOT = Path("data/processed/features_hierarchical_v3")
+DEFAULT_REPORTS_ROOT = Path("reports/feature_extraction_v3")
+DEFAULT_MONITOR_ROOT = Path("reports/feature_extraction_v3_monitor")
 
 PHASE_FOLDERS = ("charge", "discharge")
 

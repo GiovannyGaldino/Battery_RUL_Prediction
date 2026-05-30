@@ -32,9 +32,7 @@ DATASET_CODE = "NRW"
 DATASET_FOLDER = "nrw"
 AUDIT_VERSION = "nrw_audit_v1.0"
 
-DEFAULT_BASE_DIR = Path(
-    r"D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries"
-)
+DEFAULT_BASE_DIR = Path.cwd()
 
 MIN_VALID_POINTS = 20
 MIN_QV_VOLTAGE_RANGE = 0.10

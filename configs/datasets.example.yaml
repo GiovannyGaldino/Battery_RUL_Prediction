@@ -1,0 +1,24 @@
+datasets:
+  calce:
+    raw_dir: "data/raw/CALCE"
+    file_pattern: "**/*.xlsx"
+  hust:
+    raw_dir: "data/raw/HUST"
+    file_pattern: "**/*.pkl"
+  matr:
+    raw_dir: "data/raw/MATR"
+    file_pattern: "*.mat"
+  nasa_pcoe:
+    raw_dir: "data/raw/PCOE"
+    file_pattern: "*.mat"
+  nrw:
+    raw_dir: "data/raw/NRW"
+    file_pattern: "RW*.mat"
+  ora:
+    raw_file: "data/raw/ORA/Oxford_Battery_Degradation_Dataset_1.mat"
+  rwth:
+    raw_dir: "data/raw/RWTH"
+    file_pattern: "*.zip"
+  xjtu:
+    raw_dir: "data/raw/XJTU"
+    file_pattern: "**/*.mat"

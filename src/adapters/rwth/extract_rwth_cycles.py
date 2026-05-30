@@ -42,9 +42,7 @@ from tqdm.auto import tqdm
 DATASET = "RWTH"
 ADAPTER_VERSION = "rwth_extract_v1.1"
 
-DEFAULT_BASE_DIR = Path(
-    r"D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries"
-)
+DEFAULT_BASE_DIR = Path.cwd()
 DEFAULT_RAW_DIR = DEFAULT_BASE_DIR / "data" / "raw" / "RWTH"
 DEFAULT_OUTPUT_DIR = DEFAULT_BASE_DIR / "data" / "interim" / "rwth" / "extracted"
 DEFAULT_REPORT_DIR = DEFAULT_BASE_DIR / "data" / "reports" / "rwth" / "extraction"

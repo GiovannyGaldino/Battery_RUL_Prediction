@@ -44,9 +44,7 @@ DATASET_CODE = "NRW"
 DATASET_FOLDER = "nrw"
 ADAPTER_VERSION = "nrw_extractor_v1.1"
 
-DEFAULT_BASE_DIR = Path(
-    r"D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries"
-)
+DEFAULT_BASE_DIR = Path.cwd()
 
 MIN_POINTS_EXTRACTED = 10
 NOMINAL_CAPACITY_AH = 2.1

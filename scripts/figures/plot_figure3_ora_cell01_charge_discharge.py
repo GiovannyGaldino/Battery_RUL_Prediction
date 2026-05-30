@@ -17,10 +17,10 @@ middle-, and late-life cycles.
 
 Example PowerShell command:
 
-& C:\Users\Giovanny\anaconda3\envs\batteries\python.exe `
-  "C:\Artigo Baterias de Litio\Batteries\scripts\article\plot_figure3_ora_cell01_charge_discharge.py" `
-  --data-root "C:\Artigo Baterias de Litio\Batteries\data" `
-  --output-root "C:\Artigo Baterias de Litio\Batteries\reports\article_figures\figure3_ora_cell01_raw_signal_audit" `
+& python `
+  ".\scripts\article\plot_figure3_ora_cell01_charge_discharge.py" `
+  --data-root ".\data" `
+  --output-root ".\reports\article_figures\figure3_ora_cell01_raw_signal_audit" `
   --engine fastparquet `
   --formats png pdf `
   --dpi 600 `
@@ -45,7 +45,7 @@ import numpy as np
 import pandas as pd
 
 
-DEFAULT_PROJECT_ROOT = Path(r"C:\Artigo Baterias de Litio\Batteries")
+DEFAULT_PROJECT_ROOT = Path.cwd()
 DEFAULT_DATA_ROOT = DEFAULT_PROJECT_ROOT / "data"
 DEFAULT_OUTPUT_ROOT = DEFAULT_PROJECT_ROOT / "reports" / "article_figures" / "figure3_ora_cell01_raw_signal_audit"
 

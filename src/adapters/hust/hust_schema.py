@@ -20,9 +20,7 @@ import pandas as pd
 DATASET_NAME = "HUST"
 ADAPTER_VERSION = "hust_adapter_v1.0.0"
 CLEANING_VERSION = "hust_cleaning_v1.0.0"
-DEFAULT_BASE_DIR = Path(
-    r"D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries"
-)
+DEFAULT_BASE_DIR = Path.cwd()
 DEFAULT_TEMPERATURE_C = 30.0
 
 # Conservative cleaning criteria. These are structural criteria, not aggressive

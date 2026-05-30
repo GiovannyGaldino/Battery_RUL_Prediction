@@ -34,8 +34,8 @@ DATASET_ALIASES = {
     "RANDOM_WALK": "NRW",
 }
 
-DEFAULT_INTERIM_ROOT = r"C:\Artigo Baterias de Litio\Batteries\data\interim"
-DEFAULT_OUTPUT_ROOT = r"C:\Artigo Baterias de Litio\Batteries\reports\auditoria_extra"
+DEFAULT_INTERIM_ROOT = "data/interim"
+DEFAULT_OUTPUT_ROOT = "reports/audit_extra"
 
 
 def canonicalize_dataset_name(name: object) -> str:

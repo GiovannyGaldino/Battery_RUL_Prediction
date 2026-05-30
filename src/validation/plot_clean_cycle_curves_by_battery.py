@@ -55,9 +55,7 @@ import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
 
-DEFAULT_BASE_DIR = Path(
-    r"D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries"
-)
+DEFAULT_BASE_DIR = Path.cwd()
 
 PHASES = ("charge", "discharge")
 PLOT_KINDS = ("voltage_vs_capacity", "capacity_vs_voltage")

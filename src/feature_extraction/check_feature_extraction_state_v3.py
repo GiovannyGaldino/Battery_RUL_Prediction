@@ -1,27 +1,23 @@
 """
 check_feature_extraction_state_v3.py
 
-Pipeline de verificação do estado atual da extração de características v3.
+Read-only state checker for hierarchical feature extraction v3.
 
-Uso recomendado no PowerShell, a partir da raiz do projeto Batteries:
+Typical use from the repository root:
 
-$args_state = @(
-  ".\\src\\feature_extraction\\check_feature_extraction_state_v3.py",
-  "--input-root", "C:\\Artigo Baterias de Litio\\Batteries\\data\\interim",
-  "--output-root", "C:\\Artigo Baterias de Litio\\Batteries\\data\\processed\\features_hierarchical_v3",
-  "--reports-root", "C:\\Artigo Baterias de Litio\\Batteries\\reports\\feature_extraction_v3",
-  "--state-root", "C:\\Artigo Baterias de Litio\\Batteries\\reports\\feature_extraction_v3_state",
-  "--deep-check"
-)
-& C:\\Users\\Giovanny\\anaconda3\\envs\\batteries\\python.exe @args_state
+    python src/feature_extraction/check_feature_extraction_state_v3.py \
+        --input-root data/interim \
+        --output-root data/processed/features_hierarchical_v3 \
+        --reports-root reports/feature_extraction_v3 \
+        --state-root reports/feature_extraction_v3_state \
+        --deep-check
 
-Para acompanhar continuamente:
+For continuous monitoring, add:
 
-$args_state += "--watch"
-& C:\\Users\\Giovanny\\anaconda3\\envs\\batteries\\python.exe @args_state
+    --watch
 
-O script não modifica os arquivos de extração. Ele apenas lê entradas, saídas,
-marcadores .done, arquivos .error, temporários, status.jsonl e targets.
+The script does not modify extraction outputs. It reads inputs, generated feature
+files, .done markers, .error files, temporary files, status logs, and targets.
 """
 
 from __future__ import annotations
@@ -44,10 +40,10 @@ try:
 except Exception:  # pragma: no cover
     fastparquet = None
 
-DEFAULT_INPUT_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/data/interim")
-DEFAULT_OUTPUT_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/data/processed/features_hierarchical_v3")
-DEFAULT_REPORTS_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/reports/feature_extraction_v3")
-DEFAULT_STATE_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/reports/feature_extraction_v3_state")
+DEFAULT_INPUT_ROOT = Path("data/interim")
+DEFAULT_OUTPUT_ROOT = Path("data/processed/features_hierarchical_v3")
+DEFAULT_REPORTS_ROOT = Path("reports/feature_extraction_v3")
+DEFAULT_STATE_ROOT = Path("reports/feature_extraction_v3_state")
 PHASE_DIRS = ("charge", "discharge")
 
 KEY_COLUMNS = [

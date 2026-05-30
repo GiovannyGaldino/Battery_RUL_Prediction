@@ -1,9 +1,5 @@
-﻿# Data directory
+# Data directory placeholder
 
-This repository does not store raw, interim, processed, or modeling datasets.
+This repository does not track datasets or generated artifacts.
 
-Large data files must be stored outside Git, preferably at:
-
-C:\Artigo Baterias de Litio\Batteries\data
-
-Public dataset releases should be stored separately in Google Drive or another data repository.
+Use this directory only as a local working location, or set a separate data root in `configs/paths.local.yaml`. The `.gitignore` file prevents raw, interim, processed, report, and model files from being committed.

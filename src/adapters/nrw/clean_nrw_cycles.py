@@ -41,9 +41,7 @@ DATASET_CODE = "NRW"
 DATASET_FOLDER = "nrw"
 CLEANING_VERSION = "nrw_cleaner_v1.0"
 
-DEFAULT_BASE_DIR = Path(
-    r"D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries"
-)
+DEFAULT_BASE_DIR = Path.cwd()
 
 NOMINAL_CAPACITY_AH = 2.1
 NOMINAL_VOLTAGE_V = 3.7

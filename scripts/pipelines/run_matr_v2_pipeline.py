@@ -5,8 +5,8 @@ This runner separates:
     --project-dir : where the source code is located.
     --base-dir    : where the Batteries data/reports folders are located.
 
-Typical use when scripts are in OneDrive but data are on C:\:
-    & C:\Users\Giovanny\anaconda3\envs\batteries\python.exe scripts\pipelines\run_matr_v2_pipeline.py --base-dir "C:\Artigo Baterias de Litio\Batteries"
+Typical use from the repository root:
+    python scripts/pipelines/run_matr_v2_pipeline.py --base-dir .
 
 Default raw path used by the extraction step:
     <base-dir>\data\raw\MATR\*.mat
@@ -35,7 +35,7 @@ def default_project_dir() -> Path:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run MATR adapter v2 extraction, cleaning and audit.")
-    parser.add_argument("--base-dir", type=str, required=True, help="Data/report root directory, e.g. C:\\Artigo Baterias de Litio\\Batteries")
+    parser.add_argument("--base-dir", type=str, required=True, help="Data/report root directory, e.g. <project-root>")
     parser.add_argument("--project-dir", type=str, default=None, help="Project source-code root. Defaults to the root that contains this runner.")
     parser.add_argument("--raw-dir", type=str, default=None, help="Optional MATR raw directory. Defaults to <base-dir>/data/raw/MATR.")
     parser.add_argument("--discharge-current-threshold-a", type=float, default=0.5)

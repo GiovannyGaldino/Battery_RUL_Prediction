@@ -320,7 +320,7 @@ def median_sample_period(time_s: Sequence[float]) -> float:
 
 
 def infer_default_base_dir() -> Path:
-    return Path(r"D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries")
+    return Path.cwd()
 
 
 def make_relative_path(path: Path, base_dir: Path) -> str:

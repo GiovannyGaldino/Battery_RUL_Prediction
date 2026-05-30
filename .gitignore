@@ -1,39 +1,37 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 .Python
-
-# Virtual environments
 .venv/
 venv/
 env/
-
-# Jupyter
 .ipynb_checkpoints/
 
-# VS Code local settings
+# Editor and OS
 .vscode/
 !.vscode/extensions.json
-
-# OS files
 .DS_Store
 Thumbs.db
 
-# Logs
+# Logs and temporary files
 *.log
+*.tmp
+*.done
+*.error.txt
+*.bak
 
-# Build / packaging
-build/
-dist/
-*.egg-info/
-
-# Data folders
+# Data and generated artifacts
 data/*
 !data/README.md
+reports/
+models/
+outputs/
+releases/
+figures/generated/
 
-# Large data files
+# Large or generated data files
 *.parquet
 *.csv
 *.xlsx
@@ -47,14 +45,7 @@ data/*
 *.7z
 *.rar
 
-# Generated outputs
-reports/
-outputs/
-models/
-figures/generated/
-
-# Temporary execution files
-*.tmp
-*.done
-*.error.txt
-*.bak
+# Packaging
+build/
+dist/
+*.egg-info/

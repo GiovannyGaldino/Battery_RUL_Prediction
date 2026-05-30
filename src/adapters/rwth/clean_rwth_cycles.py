@@ -28,9 +28,7 @@ from tqdm.auto import tqdm
 DATASET = "RWTH"
 CLEANING_VERSION = "rwth_clean_v1.4"
 
-DEFAULT_BASE_DIR = Path(
-    r"D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries"
-)
+DEFAULT_BASE_DIR = Path.cwd()
 DEFAULT_EXTRACTED_DIR = DEFAULT_BASE_DIR / "data" / "interim" / "rwth" / "extracted"
 DEFAULT_CLEAN_DIR = DEFAULT_BASE_DIR / "data" / "interim" / "rwth" / "clean"
 DEFAULT_REPORT_DIR = DEFAULT_BASE_DIR / "data" / "reports" / "rwth" / "cleaning"

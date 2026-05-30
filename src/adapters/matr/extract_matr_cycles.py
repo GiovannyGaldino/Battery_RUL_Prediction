@@ -60,9 +60,7 @@ except ImportError:  # pragma: no cover
 DATASET = "MATR"
 ADAPTER_VERSION = "matr_adapter_v2_contiguous_current_split_2026-05-26"
 
-DEFAULT_BASE_DIR = Path(
-    r"D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries"
-)
+DEFAULT_BASE_DIR = Path.cwd()
 
 
 # ---------------------------------------------------------------------------

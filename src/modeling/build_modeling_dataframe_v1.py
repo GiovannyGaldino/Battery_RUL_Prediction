@@ -51,10 +51,10 @@ except Exception:
     PchipInterpolator = None  # type: ignore
 
 
-DEFAULT_INTERIM_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/data/interim")
-DEFAULT_FEATURES_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/data/processed/features_hierarchical_v3")
-DEFAULT_OUTPUT_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/data/processed/modeling_dataset_v1")
-DEFAULT_REPORTS_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/reports/modeling_dataset_v1")
+DEFAULT_INTERIM_ROOT = Path("data/interim")
+DEFAULT_FEATURES_ROOT = Path("data/processed/features_hierarchical_v3")
+DEFAULT_OUTPUT_ROOT = Path("data/processed/modeling_dataset_v1")
+DEFAULT_REPORTS_ROOT = Path("reports/modeling_dataset_v1")
 
 PHASES = ("charge", "discharge")
 
@@ -1222,7 +1222,7 @@ def _sanitize_model_input_csv_after_run():
 
     reports_root = get_arg_value(
         "--reports-root",
-        r"C:\Artigo Baterias de Litio\Batteries\reports\modeling_dataset_v1"
+        r".\reports\modeling_dataset_v1"
     )
 
     reports_root = Path(reports_root)

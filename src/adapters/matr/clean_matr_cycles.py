@@ -50,9 +50,7 @@ except ImportError:  # pragma: no cover
 DATASET = "MATR"
 CLEANING_VERSION = "matr_adapter_v2_1_clean_memory_safe_contiguous_split_2026-05-26"
 
-DEFAULT_BASE_DIR = Path(
-    r"D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries"
-)
+DEFAULT_BASE_DIR = Path.cwd()
 
 STANDARD_CYCLE_COLUMNS = [
     # Identification

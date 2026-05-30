@@ -1,0 +1,17 @@
+# Copy this file to configs/paths.local.yaml and edit the values.
+# Do not commit paths.local.yaml if it contains machine-specific paths.
+
+project_root: "."
+data_root: "data"
+reports_root: "reports"
+models_root: "models"
+
+raw_root: "data/raw"
+interim_root: "data/interim"
+interim_charge: "data/interim/charge"
+interim_discharge: "data/interim/discharge"
+
+features_root: "data/processed/features_hierarchical_v3"
+modeling_root: "data/processed/modeling_dataset_v1"
+feature_reports_root: "reports/feature_extraction_v3"
+modeling_reports_root: "reports/modeling_dataset_v1"

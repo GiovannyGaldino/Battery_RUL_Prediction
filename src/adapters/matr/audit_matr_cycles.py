@@ -42,9 +42,7 @@ except ImportError:  # pragma: no cover
 DATASET = "MATR"
 AUDIT_VERSION = "matr_adapter_v1_1_audit_2026-05-17"
 
-DEFAULT_BASE_DIR = Path(
-    r"D:\USUÁRIOS\Marcellus\OneDrive\Doutorado\BATERIAS - Ressubmissão\Batteries"
-)
+DEFAULT_BASE_DIR = Path.cwd()
 
 STANDARD_CYCLE_COLUMNS = [
     "dataset", "source_file", "source_path", "battery_id", "battery_index",

@@ -1,38 +1,18 @@
 """
-inspect_features_v3_outputs_patched.py
+inspect_features_v3_outputs.py
 
-Robust inspection script for features_hierarchical_v3.
+Robust inspection script for features_hierarchical_v3 outputs.
 
-This version avoids crashing when fastparquet fails to read nullable integer columns
-with pd.NA/NAType. It reads feature files column-by-column when necessary and
-skips only unreadable columns, writing them to parquet_read_failures.csv.
+Typical use from the repository root:
 
-It also plots raw curves from:
-    data/interim/charge
-    data/interim/discharge
+    python src/feature_extraction/inspect_features_v3_outputs.py \
+        --features-root data/processed/features_hierarchical_v3 \
+        --interim-root data/interim \
+        --reports-root reports/features_v3_inspection \
+        --curves-per-dataset-phase 3
 
-Outputs:
-- inspection_report.md
-- output_inventory.csv
-- loaded_feature_files.csv
-- parquet_read_failures.csv
-- rows_by_dataset_phase_level.csv
-- key_summary.csv
-- feature_quality_summary.csv
-- range_checks.csv
-- target_summary.csv
-- target_rows_sample.csv
-- consistency_checks.csv
-- sample_phase_features.csv
-- sample_suspicious_phase_features.csv
-- raw_curve_sample_metadata.csv
-- curve_plot_index.csv
-- capacity_life_plot_index.csv
-- plots/raw_curves/*.png
-- plots/capacity_life/*.png
-
-Typical use:
-& C:\\Users\\Giovanny\\anaconda3\\envs\\batteries\\python.exe ".\\src\\feature_extraction\\inspect_features_v3_outputs.py" --features-root "C:\\Artigo Baterias de Litio\\Batteries\\data\\processed\\features_hierarchical_v3" --interim-root "C:\\Artigo Baterias de Litio\\Batteries\\data\\interim" --reports-root "C:\\Artigo Baterias de Litio\\Batteries\\reports\\features_v3_inspection" --curves-per-dataset-phase 3
+The script reads feature files, produces inventory tables, checks feature quality,
+plots sampled raw curves, and summarizes capacity-life trajectories.
 """
 
 from __future__ import annotations
@@ -54,9 +34,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
-DEFAULT_FEATURES_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/data/processed/features_hierarchical_v3")
-DEFAULT_INTERIM_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/data/interim")
-DEFAULT_REPORTS_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/reports/features_v3_inspection")
+DEFAULT_FEATURES_ROOT = Path("data/processed/features_hierarchical_v3")
+DEFAULT_INTERIM_ROOT = Path("data/interim")
+DEFAULT_REPORTS_ROOT = Path("reports/features_v3_inspection")
 
 VECTOR_COLUMNS = ["time_s", "voltage_v", "current_a", "temperature_c", "capacity_ah", "energy_wh", "power_w"]
 

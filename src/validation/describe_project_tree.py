@@ -10,7 +10,7 @@ This script is read-only:
 - it only scans metadata and writes inventory reports.
 
 Default project root:
-C:\\Artigo Baterias de Litio\\Batteries
+<project-root>
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Iterable, Optional
 
 
-DEFAULT_PROJECT_ROOT = r"C:\Artigo Baterias de Litio\Batteries"
+DEFAULT_PROJECT_ROOT = "."
 
 
 IMAGE_EXTENSIONS = {

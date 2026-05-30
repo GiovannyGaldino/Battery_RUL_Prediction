@@ -14,7 +14,7 @@ phase-specific rows. Final schema compliance is handled by clean_hust_cycles.py.
 
 Example:
     python src/adapters/hust/extract_hust_cycles.py \
-        --base-dir "D:/USUÁRIOS/Marcellus/OneDrive/Doutorado/BATERIAS - Ressubmissão/Batteries"
+        --base-dir "."
 """
 
 from __future__ import annotations

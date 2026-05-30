@@ -50,8 +50,8 @@ except Exception:
     mutual_info_regression = None  # type: ignore
 
 
-DEFAULT_FEATURES_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/data/processed/features_hierarchical_v3")
-DEFAULT_OUTPUT_ROOT = Path(r"C:/Artigo Baterias de Litio/Batteries/reports/auditoria")
+DEFAULT_FEATURES_ROOT = Path("data/processed/features_hierarchical_v3")
+DEFAULT_OUTPUT_ROOT = Path("reports/audit")
 DEFAULT_OUTPUT_SUBDIR = Path(r"global/feature_report_only")
 
 PHASES = ("charge", "discharge")

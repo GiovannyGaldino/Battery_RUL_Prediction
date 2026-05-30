@@ -7,13 +7,13 @@ Figure 4. Example of protocol-induced voltage changes in HUST cell 9-4.
 (b) corresponding discharge V(Q) curves for the same cycles.
 
 Default input priority:
-1) C:\Artigo Baterias de Litio\Batteries\data\interim\discharge\hust_discharge_clean_cycles.parquet
-2) C:\Artigo Baterias de Litio\Batteries\data\interim\hust\clean\hust_discharge_clean_cycles.parquet
+1) data/interim/discharge/hust_discharge_clean_cycles.parquet
+2) data/interim/hust/clean/hust_discharge_clean_cycles.parquet
 
 Outputs:
-C:\Artigo Baterias de Litio\Batteries\reports\article_figures\figure4_hust_cell_9_4\figure4a_hust_cell_9_4_raw_signals.png
-C:\Artigo Baterias de Litio\Batteries\reports\article_figures\figure4_hust_cell_9_4\figure4b_hust_cell_9_4_vq.png
-C:\Artigo Baterias de Litio\Batteries\reports\article_figures\figure4_hust_cell_9_4\figure4_selected_cycles.csv
+reports/article_figures/figure4_hust_cell_9_4/figure4a_hust_cell_9_4_raw_signals.png
+reports/article_figures/figure4_hust_cell_9_4/figure4b_hust_cell_9_4_vq.png
+reports/article_figures/figure4_hust_cell_9_4/figure4_selected_cycles.csv
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-DEFAULT_PROJECT_ROOT = Path(r"C:\Artigo Baterias de Litio\Batteries")
+DEFAULT_PROJECT_ROOT = Path.cwd()
 DEFAULT_DATA_ROOT = DEFAULT_PROJECT_ROOT / "data"
 DEFAULT_OUTPUT_ROOT = DEFAULT_PROJECT_ROOT / "reports" / "article_figures" / "figure4_hust_cell_9_4"
 

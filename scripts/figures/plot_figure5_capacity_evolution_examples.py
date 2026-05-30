@@ -8,12 +8,12 @@ Figure 5. Capacity evolution examples after standardization.
 (c) example with capacity anomaly or non-monotonic behavior.
 
 Default input priority:
-1) C:\Artigo Baterias de Litio\Batteries\data\interim\discharge\*_discharge_clean_cycles.parquet
-2) C:\Artigo Baterias de Litio\Batteries\data\interim\*\clean\*_discharge_clean_cycles.parquet
+1) data/interim/discharge/*_discharge_clean_cycles.parquet
+2) data/interim/*/clean/*_discharge_clean_cycles.parquet
 
 Output:
-C:\Artigo Baterias de Litio\Batteries\reports\article_figures\figure5_capacity_evolution_examples\figure5_capacity_evolution_examples.png
-C:\Artigo Baterias de Litio\Batteries\reports\article_figures\figure5_capacity_evolution_examples\figure5_selected_cases.csv
+reports/article_figures/figure5_capacity_evolution_examples/figure5_capacity_evolution_examples.png
+reports/article_figures/figure5_capacity_evolution_examples/figure5_selected_cases.csv
 """
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-DEFAULT_PROJECT_ROOT = Path(r"C:\Artigo Baterias de Litio\Batteries")
+DEFAULT_PROJECT_ROOT = Path.cwd()
 DEFAULT_DATA_ROOT = DEFAULT_PROJECT_ROOT / "data"
 DEFAULT_OUTPUT_ROOT = DEFAULT_PROJECT_ROOT / "reports" / "article_figures" / "figure5_capacity_evolution_examples"
 
