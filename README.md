@@ -1,87 +1,70 @@
-# Battery RUL Prediction — Public Code Repository
+# 🔋 Battery RUL Prediction Framework
 
-This repository contains the reproducible code used to adapt public lithium-ion battery aging datasets, extract charge/discharge features, audit processed data, and build modeling tables for Remaining Useful Life (RUL) prediction.
+## Reproducible Machine Learning Pipeline for Lithium-Ion Battery Remaining Useful Life (RUL)
 
-The repository intentionally does **not** store raw, interim, processed, modeling, report, or model artifact files. Data should be stored outside Git and referenced through command-line arguments or local configuration files.
+This repository provides a fully reproducible machine learning framework for predicting the Remaining Useful Life (RUL) of lithium-ion batteries using heterogeneous public datasets.
 
-## Repository scope
+---
 
-Active code is organized into four groups:
+## 📌 Key Contributions
 
-- `src/adapters/`: dataset-specific extraction, cleaning, and auditing scripts;
-- `src/feature_extraction/`: vector-aware hierarchical feature extraction v3;
-- `src/modeling/`: modeling dataframe construction;
-- `src/validation/`: optional quality-control and audit utilities.
+- Unified pipeline for 8 public battery datasets
+- Phase-level modeling of charge and discharge cycles
+- Vector-aware feature extraction (V(Q), Q(V))
+- Robust cross-dataset evaluation:
+  - Global training
+  - Per-dataset evaluation
+  - Leave-One-Dataset-Out (LODO)
+- Machine learning models:
+  - Random Forest
+  - Extra Trees
+  - Elastic Net
+  - MLP
+  - HistGradientBoosting
 
-Convenience scripts are stored in:
+---
 
-- `scripts/`: reproducible public entry points;
-- `scripts/figures/`: scripts used to generate manuscript figures;
-- `tools/diagnostics/`: optional debugging utilities that are not required for the main pipeline.
+## ⚙️ Pipeline Overview
 
-## Data policy
+Raw Data → Dataset Adapters → Cycle Cleaning → Phase-Level Feature Extraction → Modeling Dataset Construction → HPC Campaign → Metrics Aggregation
 
-Do not commit datasets to this repository. Keep local data in a separate folder such as:
+---
 
-```text
-<project-root>/data/raw
-<project-root>/data/interim
-<project-root>/data/processed
-<project-root>/reports
-<project-root>/models
-```
+## 📂 Repository Structure
 
-For a public release, publish only versioned data packages, for example in Google Drive, Zenodo, Figshare, or OSF.
+- src/ → Core pipeline
+- scripts/ → Execution entry points
+- configs/ → Experiment configuration files
+- docs/ → Technical documentation
+- battery_rul_modeling_final_campaign_hpc/ → Final campaign
 
-## Quick start
+---
 
-Create an environment and install the required packages:
+## 🚀 Quick Start
 
-```bash
-python -m venv .venv
-# Windows PowerShell: .venv\Scripts\Activate.ps1
-# Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
-```
 
-Copy `configs/paths.example.yaml` to `configs/paths.local.yaml` and edit the paths for your machine. The scripts can also be run without YAML files by passing paths explicitly as command-line arguments.
+python scripts/run_adapter.py --dataset matr --stage all
+python scripts/run_feature_extraction_v3.py --fast-mode --no-stages
+python scripts/run_modeling_dataframe.py
 
-## Expected raw-data layout
+---
 
-Place the original downloaded files under `data/raw`:
+## ⚠️ Important Notes
 
-```text
-data/raw/
-  CALCE/
-  HUST/
-  MATR/
-  PCOE/
-  NRW/
-  ORA/
-  RWTH/
-  XJTU/
-```
+- No stage-level extraction in final campaign
+- Energy represented via derived trajectory features (no explicit E(Q))
+- Trained models are not included
+- Raw datasets excluded due to licensing
 
-See `docs/raw_data_layout.md` for dataset-specific file patterns.
+---
 
-## Main workflow
+## 📜 Citation
 
-1. Run dataset adapters: extraction, cleaning, and audit.
-2. Copy or merge clean cycle files into `data/interim/charge` and `data/interim/discharge`.
-3. Run hierarchical feature extraction v3.
-4. Inspect/audit feature files.
-5. Build modeling dataframes.
-
-Detailed commands are available in `docs/running_pipeline.md`.
-
-## Minimal example
-
-```bash
-python scripts/run_adapter.py --dataset matr --base-dir . --stage all
-python scripts/run_feature_extraction_v3.py --base-dir . --workers 2 --resume --fast-mode --no-stages
-python scripts/run_modeling_dataframe.py --base-dir .
-```
-
-## Notes for publication
-
-Legacy v2 feature-extraction scripts and bytecode/cache files were removed from the public package. Development-only diagnostics were moved to `tools/diagnostics` so the public workflow remains focused and reproducible.
+@software{galdino2026battery_rul,
+  author = {Galdino, Giovanny},
+  title = {Battery RUL Prediction Framework},
+  year = {2026},
+  version = {1.0.0},
+  url = {https://github.com/GiovannyGaldino/Battery_RUL_Prediction}
+}
