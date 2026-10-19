@@ -1,0 +1,374 @@
+--- pristine/build_hierarchical_features_v3.py	2026-09-03 00:00:37.512529063 +0000
++++ patched/build_hierarchical_features_v3.py	2026-09-03 00:24:42.532541313 +0000
+@@ -179,6 +179,20 @@
+     "has_energy",
+ ]
+ 
++# v3: colunas que saem de build_targets e NAO sao alvo, mas devem acompanhar o
++# registro. Tudo que comeca com target_ e copiado automaticamente.
++TARGET_PASSTHROUGH_COLUMNS = {
++    "source_file_key", "source_row_id", "phase_folder", "dataset", "battery_id",
++    "cycle_index", "cycle_number", "phase",
++    "capacity_trend_slope_per_step", "capacity_trend_spearman",
++    "capacity_positive_step_rate", "capacity_negative_step_rate",
++    "capacity_median_abs_step_ah",
++    "capacity_validation_status", "capacity_validation_notes",
++    "input_soh", "input_remaining_cycles", "input_remaining_cycles_norm",
++    "input_cycle_life", "input_initial_capacity_ah", "input_nominal_capacity_ah",
++}
++
++# Mantida por compatibilidade com scripts externos (nomes do limiar 80/70).
+ TARGET_OUTPUT_COLUMNS = [
+     "source_file_key",
+     "source_row_id",
+@@ -685,40 +699,54 @@
+     rolling_window: int,
+     consecutive: int,
+     min_position: int,
+-    allow_single_point_fallback: bool = False,
+-) -> Tuple[float, float, float]:
++    permanence_ratio: float = EOL_PERMANENCE_RATIO,
++    permanence_on_smooth: bool = False,
++) -> Tuple[float, float, float, str, float]:
+     """
+     Returns:
+-        eol_position, eol_cycle_like_value, eol_capacity_value
++        eol_position, eol_cycle_like_value, eol_capacity_value,
++        reject_reason, min_ratio_reached
+ 
+     eol_position is the row order within the battery/phase group.
++    reject_reason is "found" when an EOL was accepted; otherwise it names the
++    single rule that blocked acceptance, so that right-censoring can be audited.
++    min_ratio_reached is min(raw capacity) / initial_capacity, regardless of
++    whether an EOL was found.
++
++    v3 (campanha_v3): the permanence rule is now a parameter. v2 behaviour is
++    reproduced with permanence_ratio=0.90 and permanence_on_smooth=False.
+     """
+ 
+     if not np.isfinite(initial_capacity) or initial_capacity <= 0:
+-        return np.nan, np.nan, np.nan
++        return np.nan, np.nan, np.nan, "no_initial_capacity", np.nan
+ 
+     values = pd.to_numeric(cap, errors="coerce").astype(float)
+-    smooth = values.rolling(window=rolling_window, min_periods=1).median()
++    if len(values) == 0 or not values.notna().any():
++        return np.nan, np.nan, np.nan, "empty_series", np.nan
++
++    vals_np = values.to_numpy(dtype=float)
++    min_ratio = float(np.nanmin(vals_np) / initial_capacity)
+ 
++    smooth = values.rolling(window=rolling_window, min_periods=1).median()
+     threshold = threshold_ratio * initial_capacity
+     below = (smooth <= threshold) & values.notna()
+ 
+-    if len(below) == 0:
+-        return np.nan, np.nan, np.nan
+-
+     consecutive = max(1, int(consecutive))
+     min_position = max(0, int(min_position))
+-
+     arr = below.to_numpy(dtype=bool)
+-    vals_np = values.to_numpy(dtype=float)
+ 
+-    found_pos: Optional[int] = None
++    if not bool(arr[min_position:].any()):
++        return np.nan, np.nan, np.nan, "never_crossed", min_ratio
++
++    # O fim de vida e irreversivel. Um cruzamento so e aceito se, a partir dele,
++    # a capacidade nunca mais superar permanence_ratio da capacidade inicial.
++    # Em v2 essa checagem era feita sobre valores brutos (um unico outlier
++    # tardio anulava o cruzamento). Em v3 pode ser feita sobre a serie suavizada.
++    permanence = permanence_ratio * initial_capacity
++    perm_series = smooth.to_numpy(dtype=float) if permanence_on_smooth else vals_np
+ 
+-    # O fim de vida é irreversível. Um cruzamento só é aceito se, a partir dele,
+-    # a capacidade nunca mais superar EOL_PERMANENCE_RATIO da capacidade inicial.
+-    # Recuperação modesta é tolerada; retorno a um patamar alto indica que o
+-    # trecho era de ciclos não comparáveis, e a busca recomeça depois dele.
+-    permanence = EOL_PERMANENCE_RATIO * initial_capacity
++    found_pos: Optional[int] = None
++    saw_candidate = False
+     start = int(min_position)
+     while start < len(arr):
+         cand: Optional[int] = None
+@@ -731,29 +759,20 @@
+                 break
+         if cand is None:
+             break
+-        posterior = vals_np[cand:]
++        saw_candidate = True
++        posterior = perm_series[cand:]
+         viola = np.where(np.isfinite(posterior) & (posterior > permanence))[0]
+         if len(viola) == 0:
+             found_pos = cand
+             break
+         start = cand + int(viola[-1]) + 1
+ 
+-    # NOTA (correção de construção do alvo): o fallback que aceitava o primeiro
+-    # ponto isolado abaixo do limiar foi removido. Ele anulava a exigência de
+-    # `consecutive` pontos consecutivos e fazia com que uma queda transitória de
+-    # capacidade declarasse o fim de vida de forma permanente. Quando não existe
+-    # cruzamento persistente, o EOL passa a ser tratado como NÃO ENCONTRADO
+-    # (célula censurada à direita), e não inferido de um único ponto.
+-    if found_pos is None and consecutive > 1 and allow_single_point_fallback:
+-        below_positions = np.where(arr[min_position:])[0]
+-        if len(below_positions):
+-            found_pos = int(below_positions[0] + min_position)
+-
+     if found_pos is None:
+-        return np.nan, np.nan, np.nan
++        reason = "permanence_violated" if saw_candidate else "no_persistence"
++        return np.nan, np.nan, np.nan, reason, min_ratio
+ 
+     eol_capacity = safe_float(values.iloc[found_pos])
+-    return float(found_pos), np.nan, eol_capacity
++    return float(found_pos), np.nan, eol_capacity, "found", min_ratio
+ 
+ 
+ def compute_trend_stats(cap: pd.Series) -> Dict[str, Any]:
+@@ -874,6 +893,12 @@
+     eol_consecutive: int,
+     eol_min_position: int,
+     drop_post_eol: bool = True,
++    eol_threshold: float = 0.80,
++    eol_secondary_threshold: float = 0.70,
++    permanence_mode: str = "absolute",
++    permanence_ratio: float = EOL_PERMANENCE_RATIO,
++    permanence_margin: float = 0.10,
++    permanence_on_smooth: bool = False,
+ ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+     """
+     Build redesigned targets independently for each:
+@@ -887,6 +912,19 @@
+ 
+     cycle_sort_col = "cycle_index" if "cycle_index" in scalar_df.columns else "cycle_number"
+ 
++    # v3: nomes de coluna derivam do limiar (0.80 -> eol80/rul80, 0.85 -> eol85/rul85).
++    P = int(round(eol_threshold * 100))
++    S = int(round(eol_secondary_threshold * 100))
++    if P == S:
++        raise ValueError("eol_threshold e eol_secondary_threshold nao podem ser iguais")
++    if permanence_mode == "margin":
++        perm_p = float(eol_threshold + permanence_margin)
++        perm_s = float(eol_secondary_threshold + permanence_margin)
++    elif permanence_mode == "absolute":
++        perm_p = perm_s = float(permanence_ratio)
++    else:
++        raise ValueError(f"permanence_mode invalido: {permanence_mode!r}")
++
+     records: List[pd.DataFrame] = []
+     summary_records: List[Dict[str, Any]] = []
+ 
+@@ -925,22 +963,26 @@
+             nominal_col="nominal_capacity_ah",
+         )
+ 
+-        eol80_pos, _, eol80_capacity = find_eol_position(
++        eol80_pos, _, eol80_capacity, eol80_reason, eol80_min_ratio = find_eol_position(
+             cap=cap_ref,
+             initial_capacity=initial_capacity,
+-            threshold_ratio=0.80,
++            threshold_ratio=eol_threshold,
+             rolling_window=eol_rolling_window,
+             consecutive=eol_consecutive,
+             min_position=eol_min_position,
++            permanence_ratio=perm_p,
++            permanence_on_smooth=permanence_on_smooth,
+         )
+ 
+-        eol70_pos, _, eol70_capacity = find_eol_position(
++        eol70_pos, _, eol70_capacity, eol70_reason, eol70_min_ratio = find_eol_position(
+             cap=cap_ref,
+             initial_capacity=initial_capacity,
+-            threshold_ratio=0.70,
++            threshold_ratio=eol_secondary_threshold,
+             rolling_window=eol_rolling_window,
+             consecutive=eol_consecutive,
+             min_position=eol_min_position,
++            permanence_ratio=perm_s,
++            permanence_on_smooth=permanence_on_smooth,
+         )
+ 
+         if np.isfinite(eol80_pos):
+@@ -1019,29 +1061,38 @@
+                 "target_capacity_ratio_to_initial": pd.to_numeric(soh_recomputed, errors="coerce"),
+                 "target_soh_recomputed": pd.to_numeric(soh_recomputed, errors="coerce"),
+                 "target_soh_recomputed_clipped_0_1p2": soh_clipped,
+-                "target_eol80_order_index": eol80_pos if eol80_found else np.nan,
+-                "target_eol80_cycle_index": eol80_cycle,
+-                "target_eol80_capacity_ah": eol80_capacity,
+-                "target_eol80_found": eol80_found,
+-                "target_after_eol80": after80,
+-                "target_rul80_steps_signed": rul80_steps_signed,
+-                "target_rul80_steps_clipped": rul80_steps_clipped,
+-                "target_rul80_cycle_index_signed": rul80_cycle_signed,
+-                "target_rul80_cycle_index_clipped": rul80_cycle_clipped,
+-                "target_eol70_order_index": eol70_pos if eol70_found else np.nan,
+-                "target_eol70_cycle_index": eol70_cycle,
+-                "target_eol70_capacity_ah": eol70_capacity,
+-                "target_eol70_found": eol70_found,
+-                "target_after_eol70": after70,
+-                "target_rul70_steps_signed": rul70_steps_signed,
+-                "target_rul70_steps_clipped": rul70_steps_clipped,
+-                "target_rul70_cycle_index_signed": rul70_cycle_signed,
+-                "target_rul70_cycle_index_clipped": rul70_cycle_clipped,
++                f"target_eol{P}_order_index": eol80_pos if eol80_found else np.nan,
++                f"target_eol{P}_cycle_index": eol80_cycle,
++                f"target_eol{P}_capacity_ah": eol80_capacity,
++                f"target_eol{P}_found": eol80_found,
++                f"target_after_eol{P}": after80,
++                f"target_rul{P}_steps_signed": rul80_steps_signed,
++                f"target_rul{P}_steps_clipped": rul80_steps_clipped,
++                f"target_rul{P}_cycle_index_signed": rul80_cycle_signed,
++                f"target_rul{P}_cycle_index_clipped": rul80_cycle_clipped,
++                f"target_eol{S}_order_index": eol70_pos if eol70_found else np.nan,
++                f"target_eol{S}_cycle_index": eol70_cycle,
++                f"target_eol{S}_capacity_ah": eol70_capacity,
++                f"target_eol{S}_found": eol70_found,
++                f"target_after_eol{S}": after70,
++                f"target_rul{S}_steps_signed": rul70_steps_signed,
++                f"target_rul{S}_steps_clipped": rul70_steps_clipped,
++                f"target_rul{S}_cycle_index_signed": rul70_cycle_signed,
++                f"target_rul{S}_cycle_index_clipped": rul70_cycle_clipped,
+                 "capacity_trend_slope_per_step": trend["capacity_trend_slope_per_step"],
+                 "capacity_trend_spearman": trend["capacity_trend_spearman"],
+                 "capacity_positive_step_rate": trend["capacity_positive_step_rate"],
+                 "capacity_negative_step_rate": trend["capacity_negative_step_rate"],
+                 "capacity_median_abs_step_ah": trend["capacity_median_abs_step_ah"],
++                # v3: auditoria da censura
++                f"target_eol{P}_reject_reason": eol80_reason,
++                f"target_eol{P}_min_ratio_reached": eol80_min_ratio,
++                f"target_eol{P}_threshold_ratio": float(eol_threshold),
++                f"target_eol{P}_permanence_ratio": perm_p,
++                f"target_eol{S}_reject_reason": eol70_reason,
++                f"target_eol{S}_min_ratio_reached": eol70_min_ratio,
++                f"target_eol{S}_threshold_ratio": float(eol_secondary_threshold),
++                f"target_eol{S}_permanence_ratio": perm_s,
+                 "capacity_validation_status": status,
+                 "capacity_validation_notes": notes,
+                 "input_soh": pd.to_numeric(group["soh"], errors="coerce") if "soh" in group.columns else np.nan,
+@@ -1070,14 +1121,22 @@
+                 "capacity_min_ah": safe_float(cap[cap_valid].min()) if cap_valid.any() else np.nan,
+                 "capacity_max_ah": safe_float(cap[cap_valid].max()) if cap_valid.any() else np.nan,
+                 "capacity_end_to_initial_ratio": safe_float(cap[cap_valid].iloc[-1] / initial_capacity) if cap_valid.any() and np.isfinite(initial_capacity) and initial_capacity > 0 else np.nan,
+-                "eol80_found": eol80_found,
+-                "eol80_order_index": eol80_pos if eol80_found else np.nan,
+-                "eol80_cycle_index": eol80_cycle,
+-                "eol80_capacity_ah": eol80_capacity,
+-                "eol70_found": eol70_found,
+-                "eol70_order_index": eol70_pos if eol70_found else np.nan,
+-                "eol70_cycle_index": eol70_cycle,
+-                "eol70_capacity_ah": eol70_capacity,
++                f"eol{P}_found": eol80_found,
++                f"eol{P}_order_index": eol80_pos if eol80_found else np.nan,
++                f"eol{P}_cycle_index": eol80_cycle,
++                f"eol{P}_capacity_ah": eol80_capacity,
++                f"eol{S}_found": eol70_found,
++                f"eol{S}_order_index": eol70_pos if eol70_found else np.nan,
++                f"eol{S}_cycle_index": eol70_cycle,
++                f"eol{S}_capacity_ah": eol70_capacity,
++                f"eol{P}_reject_reason": eol80_reason,
++                f"eol{P}_min_ratio_reached": eol80_min_ratio,
++                f"eol{P}_threshold_ratio": float(eol_threshold),
++                f"eol{P}_permanence_ratio": perm_p,
++                f"eol{S}_reject_reason": eol70_reason,
++                f"eol{S}_min_ratio_reached": eol70_min_ratio,
++                f"eol{S}_threshold_ratio": float(eol_secondary_threshold),
++                f"eol{S}_permanence_ratio": perm_s,
+                 "trend_slope_per_step": trend["capacity_trend_slope_per_step"],
+                 "trend_spearman": trend["capacity_trend_spearman"],
+                 "positive_step_rate": trend["capacity_positive_step_rate"],
+@@ -1481,10 +1540,11 @@
+         if col in row:
+             base[f"input_{col}"] = row[col]
+ 
+-    # Add rebuilt targets.
+-    for col in TARGET_OUTPUT_COLUMNS:
+-        if col in target_row:
+-            base[col] = target_row[col]
++    # Add rebuilt targets. v3: copia toda coluna target_* mais as de passagem,
++    # sem depender de uma lista fixa de nomes (os nomes derivam do limiar).
++    for col, val in target_row.items():
++        if col.startswith("target_") or col in TARGET_PASSTHROUGH_COLUMNS:
++            base[col] = val
+ 
+     return base
+ 
+@@ -1748,21 +1808,20 @@
+ 
+     # EOL flags are repeated for every row of the same battery/phase trajectory.
+     # Therefore, count unique batteries, not rows.
++    # v3: os limiares sao descobertos pelas colunas presentes (eol80, eol85, ...)
++    found_cols = sorted(c for c in targets.columns if re.fullmatch(r"target_eol\d+_found", c))
++    if not found_cols:
++        raise ValueError("nenhuma coluna target_eolNN_found nos alvos")
+     battery_eol = (
+         targets.groupby(["dataset", "phase_folder", "battery_id"], dropna=False)
+-        .agg(
+-            eol80_found=("target_eol80_found", "max"),
+-            eol70_found=("target_eol70_found", "max"),
+-        )
++        .agg(**{c.replace("target_", ""): (c, "max") for c in found_cols})
+         .reset_index()
+     )
+ 
+     eol_counts = (
+         battery_eol.groupby(["dataset", "phase_folder"], dropna=False)
+-        .agg(
+-            eol80_batteries=("eol80_found", "sum"),
+-            eol70_batteries=("eol70_found", "sum"),
+-        )
++        .agg(**{c.replace("target_", "").replace("_found", "_batteries"): (c.replace("target_", ""), "sum")
++                for c in found_cols})
+         .reset_index()
+     )
+ 
+@@ -1816,10 +1875,7 @@
+         "capacity_first_ah",
+         "capacity_last_ah",
+         "capacity_end_to_initial_ratio",
+-        "eol80_found",
+-        "eol80_cycle_index",
+-        "eol70_found",
+-        "eol70_cycle_index",
++        *sorted(c for c in capacity_summary.columns if re.fullmatch(r"eol\d+_(found|cycle_index|reject_reason)", c)),
+         "trend_spearman",
+         "capacity_validation_status",
+         "capacity_validation_notes",
+@@ -1966,8 +2022,20 @@
+     parser.add_argument("--eol-min-position", type=int, default=3)
+     parser.add_argument("--keep-post-eol", action="store_true",
+                         help="Mantem registros pos-EOL truncados em zero (comportamento antigo).")
+-    parser.add_argument("--eol-allow-single-point-fallback", action="store_true",
+-                        help="Reativa o fallback de ponto único (NAO recomendado: anula --eol-consecutive).")
++    # v3: limiares e permanencia por linha de comando. Defaults reproduzem v2.
++    parser.add_argument("--eol-threshold", type=float, default=0.80,
++                        help="Limiar primario de fim de vida como fracao da capacidade inicial (v2: 0.80).")
++    parser.add_argument("--eol-secondary-threshold", type=float, default=0.70,
++                        help="Limiar secundario (v2: 0.70). Use 0.85 para o braco de sensibilidade a censura.")
++    parser.add_argument("--eol-permanence-mode", choices=["absolute", "margin"], default="absolute",
++                        help="absolute: permanencia fixa em --eol-permanence-ratio (v2). "
++                             "margin: permanencia = limiar + --eol-permanence-margin, escala com o limiar.")
++    parser.add_argument("--eol-permanence-ratio", type=float, default=EOL_PERMANENCE_RATIO,
++                        help="Fracao da capacidade inicial acima da qual o cruzamento e anulado (modo absolute).")
++    parser.add_argument("--eol-permanence-margin", type=float, default=0.10,
++                        help="Margem somada ao limiar no modo margin.")
++    parser.add_argument("--eol-permanence-on", choices=["raw", "smooth"], default="raw",
++                        help="raw: checa a permanencia nos valores brutos (v2). smooth: na mediana movel.")
+ 
+     parser.add_argument(
+         "--dry-run",
+@@ -2048,6 +2116,12 @@
+         eol_consecutive=args.eol_consecutive,
+         eol_min_position=args.eol_min_position,
+         drop_post_eol=not args.keep_post_eol,
++        eol_threshold=args.eol_threshold,
++        eol_secondary_threshold=args.eol_secondary_threshold,
++        permanence_mode=args.eol_permanence_mode,
++        permanence_ratio=args.eol_permanence_ratio,
++        permanence_margin=args.eol_permanence_margin,
++        permanence_on_smooth=(args.eol_permanence_on == "smooth"),
+     )
+ 
+     targets_dir = output_root / "_targets"

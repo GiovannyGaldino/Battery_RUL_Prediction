@@ -1,0 +1,52 @@
+--- pristine/merge_modeling_with_curve_features_v3_fixed.py	2026-09-03 00:00:37.515529063 +0000
++++ patched/merge_modeling_with_curve_features_v3_fixed.py	2026-09-03 00:54:15.991556346 +0000
+@@ -4,6 +4,8 @@
+ import pandas as pd
+ 
+ 
++KEEP_CURVE_DIAGNOSTICS = False   # v3: definido por --keep-curve-diagnostics
++
+ KEYS = ["dataset", "battery_id", "phase_folder", "phase", "cycle_index", "cycle_number"]
+ 
+ 
+@@ -58,6 +60,19 @@
+             c == "_source_curve_file"
+         )
+     ]
++    # v3: remove diagnosticos de curva. Lista identica a do sanitizador v2, que
++    # nunca rodou (build_modeling_dataframe_v1.py:1244-1258).
++    if not KEEP_CURVE_DIAGNOSTICS:
++        import re as _re
++        _exact = {"VQ_n_raw_points", "VQ_n_unique_q", "VQ_q_min", "VQ_q_max", "VQ_q_range",
++                  "VQ_voltage_min", "VQ_voltage_max", "VQ_voltage_range"}
++        _regex = [r"^VQ_valid_p\d+$", r"^QV_valid_p\d+$", r"^VQ_invalid_reason_p\d+$",
++                  r".*invalid_reason.*", r".*_reason$"]
++        _drop = [c for c in curve_feature_cols
++                 if c in _exact or any(_re.match(rx, c) for rx in _regex)]
++        if _drop:
++            print(f"curve diagnostics removed ({len(_drop)}): {sorted(_drop)}")
++        curve_feature_cols = [c for c in curve_feature_cols if c not in _drop]
+ 
+     curves_reduced = curves[KEYS + curve_feature_cols].copy()
+ 
+@@ -103,9 +118,17 @@
+ 
+ 
+ def main():
+-    modeling_root = Path.home() / "data/batteries/modeling_from_v3"
+-    curve_root = Path.home() / "data/batteries/curve_features_v3_fixed"
+-    output_root = Path.home() / "data/batteries/modeling_from_v3_with_curves_fixed"
++    import argparse
++    ap = argparse.ArgumentParser(description="Merge modeling tables with curve features (v3: caminhos por CLI).")
++    ap.add_argument("--modeling-root", type=Path, default=Path.home() / "data/batteries/modeling_from_v3")
++    ap.add_argument("--curve-root", type=Path, default=Path.home() / "data/batteries/curve_features_v3_fixed")
++    ap.add_argument("--output-root", type=Path, default=Path.home() / "data/batteries/modeling_from_v3_with_curves_fixed")
++    ap.add_argument("--keep-curve-diagnostics", action="store_true",
++                    help="Mantem VQ_valid_p*, QV_valid_p* e afins (reproduz v2).")
++    a = ap.parse_args()
++    global KEEP_CURVE_DIAGNOSTICS
++    KEEP_CURVE_DIAGNOSTICS = bool(a.keep_curve_diagnostics)
++    modeling_root, curve_root, output_root = (p.expanduser() for p in (a.modeling_root, a.curve_root, a.output_root))
+ 
+     for phase in ["charge", "discharge"]:
+         merge_branch(modeling_root, curve_root, output_root, phase)
